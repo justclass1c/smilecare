@@ -5,15 +5,18 @@ package com.class1c.smilecare.domain.model
  * This is the single source of truth for what an appointment *is*.
  */
 data class Appointment(
-    val id: String,
-    val dentistName: String,
+    val appointmentID: String,
+    val patientID: String, // foreign key, use reference
+    val dentistID: String, // foreign key, use reference
     val date: String,
-    val time: String,
+    val startTime: String,
+    val endTime: String?, // nullable. endTime to be filled in after appointment
+    val reason: String,
     val status: AppointmentStatus,
 )
 
 enum class AppointmentStatus {
-    UPCOMING,
+    SCHEDULED,
     COMPLETED,
     CANCELLED,
 }

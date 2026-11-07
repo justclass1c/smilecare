@@ -15,7 +15,7 @@ data class Dentist(
     override val password: String,
     override val nric: String,
     override val phoneNo: String,
-    override val age: Int,
+    override val dateOfBirth: String,
     override val gender: Char,
     val specialty: String,
 ) : User {

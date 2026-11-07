@@ -13,10 +13,10 @@ data class Patient(
     override val password: String,
     override val nric: String,
     override val phoneNo: String,
-    override val age: Int,
+    override val dateOfBirth: String,
     override val gender: Char,
-    val address: String,
-    val emergencyContact: String,
+    val allergies: String,
+    val medicalNotes: String
 ) : User {
 
     override val role: UserRole = UserRole.PATIENT

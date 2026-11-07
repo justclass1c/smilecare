@@ -20,7 +20,7 @@ sealed interface User {
     val password: String
     val nric: String
     val phoneNo: String
-    val age: Int
+    val dateOfBirth: String
     val gender: Char
     val role: UserRole
 }

@@ -14,10 +14,9 @@ data class Receptionist(
     override val password: String,
     override val nric: String,
     override val phoneNo: String,
-    override val age: Int,
+    override val dateOfBirth: String,
     override val gender: Char,
     val employeeId: String,
-    val branch: String,
 ) : User {
 
     override val role: UserRole = UserRole.RECEPTIONIST
