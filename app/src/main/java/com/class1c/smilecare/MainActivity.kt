@@ -4,6 +4,7 @@ import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
+import com.class1c.smilecare.domain.model.user.UserRole
 import com.class1c.smilecare.ui.SmileCareApp
 import dagger.hilt.android.AndroidEntryPoint
 
