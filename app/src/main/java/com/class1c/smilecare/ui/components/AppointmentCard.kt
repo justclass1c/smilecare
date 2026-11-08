@@ -29,11 +29,11 @@ fun AppointmentCard(
             verticalArrangement = Arrangement.spacedBy(4.dp),
         ) {
             Text(
-                text = appointment.dentistName,
+                text = appointment.reason,
                 style = MaterialTheme.typography.titleMedium,
             )
             Text(
-                text = "${appointment.date} at ${appointment.time}",
+                text = "${appointment.date} at ${appointment.startTime}",
                 style = MaterialTheme.typography.bodyMedium,
             )
             Row(
@@ -46,13 +46,13 @@ fun AppointmentCard(
                         .replaceFirstChar { it.uppercase() },
                     style = MaterialTheme.typography.labelLarge,
                     color = when (appointment.status) {
-                        AppointmentStatus.UPCOMING -> MaterialTheme.colorScheme.primary
+                        AppointmentStatus.SCHEDULED-> MaterialTheme.colorScheme.primary
                         AppointmentStatus.COMPLETED -> MaterialTheme.colorScheme.onSurfaceVariant
                         AppointmentStatus.CANCELLED -> MaterialTheme.colorScheme.error
                     },
                 )
-                if (appointment.status == AppointmentStatus.UPCOMING) {
-                    TextButton(onClick = { onCancel(appointment.id) }) {
+                if (appointment.status == AppointmentStatus.SCHEDULED) {
+                    TextButton(onClick = { onCancel(appointment.appointmentID) }) {
                         Text("Cancel")
                     }
                 }
