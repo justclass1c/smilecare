@@ -1,7 +1,10 @@
 package com.class1c.smilecare.navigation
 
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
+import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
@@ -16,9 +19,11 @@ import com.class1c.smilecare.features.appointments.presentation.FindNextAvailabl
 import com.class1c.smilecare.features.appointments.presentation.ReminderPreviewScreen
 import com.class1c.smilecare.features.appointments.presentation.RemindersScreen
 import com.class1c.smilecare.features.appointments.presentation.RescheduleAppointmentScreen
-import com.class1c.smilecare.features.auth.presentation.LoginScreen
-import com.class1c.smilecare.features.auth.presentation.RegisterScreen
+import com.class1c.smilecare.features.auth.login.presentation.LoginScreen
+import com.class1c.smilecare.features.auth.register.presentation.RegisterScreen
 import com.class1c.smilecare.features.auth.presentation.SplashScreen
+import com.class1c.smilecare.features.auth.register.presentation.RegisterUIState
+import com.class1c.smilecare.features.auth.register.presentation.RegisterViewModel
 import com.class1c.smilecare.features.home.presentation.HomeScreen
 import com.class1c.smilecare.features.inventory.presentation.EquipmentScreen
 import com.class1c.smilecare.features.inventory.presentation.InventoryScreen
@@ -89,8 +94,12 @@ fun SmileCareNavHost(
         }
 
         composable(Route.Register.path) {
+            val viewModel: RegisterViewModel = hiltViewModel()
+            val state by viewModel.uiState.collectAsStateWithLifecycle()
             RegisterScreen(
+                state = state,
                 role = role,
+                onEvent = viewModel::onEvent,
                 showError = false,
                 showSuccess = false,
                 onRegisterClick = {
