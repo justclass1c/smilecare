@@ -21,6 +21,7 @@ import com.class1c.smilecare.features.appointments.presentation.ReminderPreviewS
 import com.class1c.smilecare.features.appointments.presentation.RemindersScreen
 import com.class1c.smilecare.features.appointments.presentation.RescheduleAppointmentScreen
 import com.class1c.smilecare.features.auth.login.presentation.LoginScreen
+import com.class1c.smilecare.features.auth.login.presentation.LoginViewModel
 import com.class1c.smilecare.features.auth.register.presentation.RegisterScreen
 import com.class1c.smilecare.features.auth.presentation.SplashScreen
 import com.class1c.smilecare.features.auth.register.presentation.RegisterUIState
@@ -80,7 +81,12 @@ fun SmileCareNavHost(
         }
 
         composable(Route.Login.path) {
+            val viewModel: LoginViewModel = hiltViewModel()
+            val state by viewModel.uiState.collectAsStateWithLifecycle()
+
             LoginScreen(
+                state = state,
+                onEvent = viewModel::onEvent,
                 showError = false,
                 showSuccess = false,
                 onLoginClick = {
