@@ -87,17 +87,17 @@ fun SmileCareNavHost(
             LoginScreen(
                 state = state,
                 onEvent = viewModel::onEvent,
-                showError = false,
-                showSuccess = false,
-                onLoginClick = {
-                    navController.navigate(Route.Home.path) {
-                        popUpTo(Route.Login.path) { inclusive = true }
-                    }
-                },
+                showError = state.loginError != null,
                 onRegisterClick = {
                     navController.navigate(Route.Register.path)
                 },
             )
+
+            LaunchedEffect(state.loginSuccessful) {
+                if (state.loginSuccessful) navController.navigate(Route.Home.path) {
+                    popUpTo(Route.Login.path) { inclusive = true }
+                }
+            }
         }
 
         composable(Route.Register.path) {

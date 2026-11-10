@@ -10,6 +10,7 @@ import com.class1c.smilecare.domain.model.user.UserRole
 import com.class1c.smilecare.domain.repository.UserRepository
 import io.github.jan.supabase.SupabaseClient
 import io.github.jan.supabase.postgrest.from
+import io.github.jan.supabase.postgrest.query.Columns
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
 import javax.inject.Inject
@@ -65,6 +66,41 @@ class UserRepositoryImpl @Inject constructor(
     }
 
     override suspend fun loginUser(email: String, password: String): User? {
+        val target = supabase.from("users").select(
+            columns = Columns.list("user_id", "name", "email", "password", "nric", "phone_no", "date_of_birth", "gender", "role")
+        ) {
+            filter {
+                eq("email", email)
+            }
+        }.decodeSingleOrNull<UserRow>()
+            ?.takeIf { it.password == password }
+
+        when(target?.role) {
+            "patient" -> {
+                val patient = supabase.from("patients").select(
+                    columns = Columns.list("user_id", "has_insurance", "allergies", "medical_notes")
+                ) {
+                    filter {
+                        eq ("user_id", target.userId)
+                    }
+                }.decodeSingleOrNull<PatientRow>() ?: return null
+
+                return Patient(
+                    id = target.userId,
+                    name = target.name,
+                    email = target.email,
+                    password = target.password,
+                    nric = target.nric,
+                    phoneNo = target.phoneNo,
+                    dateOfBirth = target.dateOfBirth,
+                    gender = target.gender.first().uppercaseChar(),
+                    hasInsurance = patient.hasInsurance,
+                    allergies = patient.allergies,
+                    medicalNotes = patient.medicalNotes
+                )
+            }
+        }
+
         return null
     }
 
