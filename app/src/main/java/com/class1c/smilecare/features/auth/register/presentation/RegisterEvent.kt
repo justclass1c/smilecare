@@ -1,5 +1,12 @@
 package com.class1c.smilecare.features.auth.register.presentation
 
+enum class RegisterField {
+    // user attributes
+    NAME, DATEOFBIRTH, GENDER, NRIC, EMAIL, PHONENO, PASSWORD, CONFIRMPASSWORD,
+
+    // dentist-exclusive
+    SPECIALTY
+}
 // event listeners detect every change of state.
 sealed interface RegisterEvent {
     // general template to write this is:
@@ -15,7 +22,7 @@ sealed interface RegisterEvent {
     data class UpdateEmail(val email: String): RegisterEvent
     data class UpdatePhoneNo(val phoneNo: String): RegisterEvent
     data class UpdatePassword(val password: String): RegisterEvent
-    data class UpdateConfirmPassword(val confirmPassword: String): RegisterEvent
+    data class UpdateConfirmPassword(val password: String, val confirmPassword: String): RegisterEvent
 
     // patient exclusive
     data class UpdateAllergies(val allergies: String): RegisterEvent
@@ -23,4 +30,10 @@ sealed interface RegisterEvent {
 
     // dentist exclusive
     data class UpdateSpecialization(val specialization: String): RegisterEvent
+
+    // input validation event
+    data class ValidateInput(val field: RegisterField): RegisterEvent
+
+    // create account event
+    data object RegisterAccount: RegisterEvent
 }

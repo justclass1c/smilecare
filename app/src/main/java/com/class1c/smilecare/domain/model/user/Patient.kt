@@ -15,8 +15,9 @@ data class Patient(
     override val phoneNo: String,
     override val dateOfBirth: String,
     override val gender: Char,
-    val allergies: String,
-    val medicalNotes: String
+    val hasInsurance: Boolean = false,
+    val allergies: String? = null,
+    val medicalNotes: String? = null
 ) : User {
 
     override val role: UserRole = UserRole.PATIENT

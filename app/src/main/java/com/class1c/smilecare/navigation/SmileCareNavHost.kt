@@ -1,6 +1,7 @@
 package com.class1c.smilecare.navigation
 
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.hilt.navigation.compose.hiltViewModel
@@ -102,13 +103,15 @@ fun SmileCareNavHost(
                 onEvent = viewModel::onEvent,
                 showError = false,
                 showSuccess = false,
-                onRegisterClick = {
-                    navController.popBackStack(Route.Login.path, inclusive = false)
-                },
+                onRegisterClick = { },
                 onBackClick = {
                     navController.popBackStack()
                 },
             )
+
+            LaunchedEffect(state.isRegistered) {
+                if (state.isRegistered) navController.popBackStack(Route.Login.path, inclusive = false)
+            }
         }
 
         composable(Route.Home.path) {
