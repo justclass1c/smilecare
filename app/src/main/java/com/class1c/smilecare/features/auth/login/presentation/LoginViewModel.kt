@@ -30,10 +30,11 @@ class LoginViewModel @Inject constructor(
                 runCatching {
                     userRepository.loginUser(_uiState.value.email, _uiState.value.password)
                 }.onSuccess { user -> // user gets the result from loginUser method call
+                    // if not found, then credentials are incorrect
                     if (user == null) _uiState.update { it.copy(loginSuccessful = false, isLoading = false, loginError = "Incorrect email or password") }
                     else {
                         _uiState.update { it.copy(loginSuccessful = true, isLoading = false) }
-                        userSession.currentUser = user
+                        userSession.setCurrentUser(user)
                     }
                 }.onFailure { e -> _uiState.update { it.copy(isLoading = false, loginError = "Something went wrong. Ensure your network connection is stable and try again.") } }
             }

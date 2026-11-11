@@ -109,7 +109,7 @@ class RegisterViewModel @Inject constructor(
                             )
                         )
 
-                        UserRole.RECEPTIONIST -> null
+                        else -> null
                     }
                 }
 

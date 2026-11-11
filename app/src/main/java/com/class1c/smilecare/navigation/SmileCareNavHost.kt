@@ -94,8 +94,11 @@ fun SmileCareNavHost(
             )
 
             LaunchedEffect(state.loginSuccessful) {
-                if (state.loginSuccessful) navController.navigate(Route.Home.path) {
-                    popUpTo(Route.Login.path) { inclusive = true }
+                if (state.loginSuccessful) {
+                    navController.navigate(Route.Home.path) {
+                        popUpTo(Route.Login.path) { inclusive = true }
+                    }
+
                 }
             }
         }
@@ -140,6 +143,8 @@ fun SmileCareNavHost(
                         UserRole.RECEPTIONIST -> {
                             navigateToTab(Route.Appointments)
                         }
+
+                        UserRole.ADMIN -> TODO()
                     }
                 },
                 onSecondaryQuickActionClick = {

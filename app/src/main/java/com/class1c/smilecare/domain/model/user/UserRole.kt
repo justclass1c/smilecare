@@ -9,4 +9,5 @@ enum class UserRole {
     PATIENT,
     DENTIST,
     RECEPTIONIST,
+    ADMIN
 }

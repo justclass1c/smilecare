@@ -1,7 +1,9 @@
 package com.class1c.smilecare.data.repository
 
+import com.class1c.smilecare.data.remote.row.DentistRow
 import com.class1c.smilecare.data.remote.row.PatientRow
 import com.class1c.smilecare.data.remote.row.UserRow
+import com.class1c.smilecare.domain.model.user.Admin
 import com.class1c.smilecare.domain.model.user.Dentist
 import com.class1c.smilecare.domain.model.user.Patient
 import com.class1c.smilecare.domain.model.user.Receptionist
@@ -39,6 +41,7 @@ class UserRepositoryImpl @Inject constructor(
                     is Patient -> "patient"
                     is Dentist -> "dentist"
                     is Receptionist-> "receptionist"
+                    is Admin -> "" // TODO: add a safeguard
                 }
             )
         ) { select() }.decodeSingle<UserRow>()
@@ -60,6 +63,7 @@ class UserRepositoryImpl @Inject constructor(
             is Dentist -> supabase.from("dentists")
                 .insert(mapOf("user_id" to userId, "specialty" to user.specialty))
             is Receptionist -> supabase.from("") // TODO: pending decision
+            is Admin -> null
         }
 
         return userId
@@ -97,6 +101,41 @@ class UserRepositoryImpl @Inject constructor(
                     hasInsurance = patient.hasInsurance,
                     allergies = patient.allergies,
                     medicalNotes = patient.medicalNotes
+                )
+            }
+
+            "dentist" -> {
+                val dentist = supabase.from("dentists").select(
+                    columns = Columns.list("user_id", "specialty")
+                ) {
+                    filter {
+                        eq ("user_id", target.userId)
+                    }
+                }.decodeSingleOrNull<DentistRow>() ?: return null
+
+                return Dentist(
+                    id = target.userId,
+                    name = target.name,
+                    email = target.email,
+                    password = target.password,
+                    nric = target.nric,
+                    phoneNo = target.phoneNo,
+                    dateOfBirth = target.dateOfBirth,
+                    gender = target.gender.first().uppercaseChar(),
+                    specialty = dentist.specialty
+                )
+            }
+
+            "admin" -> {
+                return Admin(
+                    id = target.userId,
+                    name = target.name,
+                    email = target.email,
+                    password = target.password,
+                    nric = target.nric,
+                    phoneNo = target.phoneNo,
+                    dateOfBirth = target.dateOfBirth,
+                    gender = target.gender.first().uppercaseChar(),
                 )
             }
         }
