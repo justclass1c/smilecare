@@ -97,7 +97,7 @@ class RegisterViewModel @Inject constructor(
 
                         UserRole.DENTIST -> userRepository.registerUser(
                             Dentist(
-                                id = "",
+                                id = UUID.randomUUID().toString(),
                                 name = user.fullName,
                                 email = user.email,
                                 password = user.password,
@@ -152,6 +152,7 @@ class RegisterViewModel @Inject constructor(
         else return "Invalid Email."
     }
     private fun validatePhoneNo(phoneNo: String): String? {
+        // TODO: phone number format should be 012-345 6789
         val phoneNoFormat = Regex("""^01\d-\d{7,8}$""")
         // TODO: add duplicate check
         if (phoneNo.isEmpty()) return "Phone number cannot be empty."

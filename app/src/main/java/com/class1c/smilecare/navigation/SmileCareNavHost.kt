@@ -24,7 +24,6 @@ import com.class1c.smilecare.features.auth.login.presentation.LoginScreen
 import com.class1c.smilecare.features.auth.login.presentation.LoginViewModel
 import com.class1c.smilecare.features.auth.register.presentation.RegisterScreen
 import com.class1c.smilecare.features.auth.presentation.SplashScreen
-import com.class1c.smilecare.features.auth.register.presentation.RegisterUIState
 import com.class1c.smilecare.features.auth.register.presentation.RegisterViewModel
 import com.class1c.smilecare.features.home.presentation.HomeScreen
 import com.class1c.smilecare.features.inventory.presentation.EquipmentScreen
@@ -44,7 +43,8 @@ import com.class1c.smilecare.features.services.presentation.ServiceFormScreen
 import com.class1c.smilecare.features.services.presentation.ServicesScreen
 import com.class1c.smilecare.features.staff.presentation.DeleteStaffAccountScreen
 import com.class1c.smilecare.features.staff.presentation.StaffAccountDetailScreen
-import com.class1c.smilecare.features.staff.presentation.StaffAccountFormScreen
+import com.class1c.smilecare.features.staff.accountformscreen.presentation.StaffAccountFormScreen
+import com.class1c.smilecare.features.staff.accountformscreen.presentation.StaffAccountFormViewModel
 import com.class1c.smilecare.features.staff.presentation.StaffAccountsScreen
 
 /**
@@ -433,15 +433,16 @@ fun SmileCareNavHost(
         }
 
         composable(Route.StaffAccountForm.path) { backStackEntry ->
+            val viewModel: StaffAccountFormViewModel = hiltViewModel()
+            val state by viewModel.uiState.collectAsStateWithLifecycle()
             val staffId = backStackEntry.arguments
                 ?.getString(Route.StaffAccountForm.ID_ARG)
                 ?: "new"
             StaffAccountFormScreen(
+                state = state,
+                onEvent = viewModel::onEvent,
                 isEditing = staffId != "new",
                 onBackClick = {
-                    navController.popBackStack()
-                },
-                onSaveClick = {
                     navController.popBackStack()
                 },
             )
