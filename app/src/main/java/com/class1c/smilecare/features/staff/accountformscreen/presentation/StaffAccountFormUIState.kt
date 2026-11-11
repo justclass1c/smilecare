@@ -20,10 +20,11 @@ data class StaffAccountFormUIState(
     val hasInsurance: Boolean = false,
 
     // dentist-exclusive fields
+    val dentistId: String = "",
     val specialization: String = "",
 
     // receptionist-exclusive fields
-    val employeeID: String = "",
+    val nurseId: String = "",
 
     // validation states
     // nullable error message: null = field is valid, non-null = reason shown to the user
@@ -46,4 +47,5 @@ data class StaffAccountFormUIState(
 
     // true when account creation succeeded (navigation trigger)
     val isRegistered: Boolean = false,
+    val successMessage: String? = null
 )

@@ -34,5 +34,6 @@ sealed interface StaffAccountFormEvent {
 
     // create account event
     data object RegisterAccount: StaffAccountFormEvent
+    data object DismissSuccess: StaffAccountFormEvent
     data object SaveAccountChanges: StaffAccountFormEvent
 }

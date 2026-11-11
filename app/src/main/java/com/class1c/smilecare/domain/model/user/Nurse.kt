@@ -7,7 +7,7 @@ package com.class1c.smilecare.domain.model.user
  * `employeeId` is the clinic's own staff number (not the account [User.id]),
  * and `branch` says which clinic location the desk belongs to.
  */
-data class Receptionist(
+data class Nurse(
     override val id: String,
     override val name: String,
     override val email: String,
@@ -16,7 +16,7 @@ data class Receptionist(
     override val phoneNo: String,
     override val dateOfBirth: String,
     override val gender: Char,
-    val employeeId: String,
+    val nurseId: String,
 ) : User {
 
     override val role: UserRole = UserRole.RECEPTIONIST

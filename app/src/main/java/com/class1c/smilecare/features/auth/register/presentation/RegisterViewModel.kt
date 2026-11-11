@@ -78,8 +78,8 @@ class RegisterViewModel @Inject constructor(
                 )}
             } else {
                 viewModelScope.launch {
-                    when (user.role) {
-                        UserRole.PATIENT -> userRepository.registerUser(
+                    if (user.role == UserRole.PATIENT) {
+                        userRepository.registerUser(
                             Patient(
                                 id = UUID.randomUUID().toString(),
                                 name = user.fullName,
@@ -94,22 +94,6 @@ class RegisterViewModel @Inject constructor(
                                 medicalNotes = user.medicalNotes,
                             )
                         )
-
-                        UserRole.DENTIST -> userRepository.registerUser(
-                            Dentist(
-                                id = UUID.randomUUID().toString(),
-                                name = user.fullName,
-                                email = user.email,
-                                password = user.password,
-                                nric = user.nric,
-                                phoneNo = user.phoneNo,
-                                dateOfBirth = user.dateOfBirth,
-                                gender = if (user.genderIndex == 0) 'F' else 'M',
-                                specialty = user.specialization,
-                            )
-                        )
-
-                        else -> null
                     }
                 }
 

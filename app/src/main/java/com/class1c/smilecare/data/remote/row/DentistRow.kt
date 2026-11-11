@@ -5,6 +5,7 @@ import kotlinx.serialization.Serializable
 
 @Serializable
 data class DentistRow (
-    @SerialName("user_id") val userID: String,
+    @SerialName("user_id") val userID: String = "",
+    @SerialName("dentist_id") val dentistID: String = "",
     val specialty: String
 )

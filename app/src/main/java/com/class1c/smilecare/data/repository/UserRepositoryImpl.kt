@@ -1,18 +1,18 @@
 package com.class1c.smilecare.data.repository
 
 import com.class1c.smilecare.data.remote.row.DentistRow
+import com.class1c.smilecare.data.remote.row.NurseRow
 import com.class1c.smilecare.data.remote.row.PatientRow
 import com.class1c.smilecare.data.remote.row.UserRow
-import com.class1c.smilecare.domain.model.user.Admin
 import com.class1c.smilecare.domain.model.user.Dentist
 import com.class1c.smilecare.domain.model.user.Patient
-import com.class1c.smilecare.domain.model.user.Receptionist
+import com.class1c.smilecare.domain.model.user.Nurse
 import com.class1c.smilecare.domain.model.user.User
-import com.class1c.smilecare.domain.model.user.UserRole
 import com.class1c.smilecare.domain.repository.UserRepository
 import io.github.jan.supabase.SupabaseClient
 import io.github.jan.supabase.postgrest.from
 import io.github.jan.supabase.postgrest.query.Columns
+import io.github.jan.supabase.postgrest.query.Order
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
 import javax.inject.Inject
@@ -40,8 +40,7 @@ class UserRepositoryImpl @Inject constructor(
                 role = when(user) {
                     is Patient -> "patient"
                     is Dentist -> "dentist"
-                    is Receptionist-> "receptionist"
-                    is Admin -> "" // TODO: add a safeguard
+                    is Nurse -> "nurse"
                 }
             )
         ) { select() }.decodeSingle<UserRow>()
@@ -56,14 +55,27 @@ class UserRepositoryImpl @Inject constructor(
                     PatientRow(
                         userId = user.id,
                         hasInsurance = user.hasInsurance,
-                        allergies = user.allergies ?: "",
-                        medicalNotes = user.medicalNotes ?: ""
+                        allergies = user.allergies ?: "N/A",
+                        medicalNotes = user.medicalNotes ?: "N/A"
                     )
                 )
+
             is Dentist -> supabase.from("dentists")
-                .insert(mapOf("user_id" to userId, "specialty" to user.specialty))
-            is Receptionist -> supabase.from("") // TODO: pending decision
-            is Admin -> null
+                .insert(
+                    DentistRow(
+                        userID = user.id,
+                        dentistID = generateStaffId('D'),
+                        specialty = user.specialty
+                    )
+                )
+
+            is Nurse -> supabase.from("nurses")
+                .insert(
+                    NurseRow(
+                        userID = user.id,
+                        nurseID = generateStaffId('N'),
+                    )
+                )
         }
 
         return userId
@@ -106,7 +118,7 @@ class UserRepositoryImpl @Inject constructor(
 
             "dentist" -> {
                 val dentist = supabase.from("dentists").select(
-                    columns = Columns.list("user_id", "specialty")
+                    columns = Columns.list("user_id", "dentist_id", "specialty")
                 ) {
                     filter {
                         eq ("user_id", target.userId)
@@ -122,12 +134,19 @@ class UserRepositoryImpl @Inject constructor(
                     phoneNo = target.phoneNo,
                     dateOfBirth = target.dateOfBirth,
                     gender = target.gender.first().uppercaseChar(),
+                    dentistId = dentist.dentistID,
                     specialty = dentist.specialty
                 )
             }
 
-            "admin" -> {
-                return Admin(
+            "nurse" -> {
+                val nurse = supabase.from("nurses").select(
+                    columns = Columns.list("user_id", "nurse_id")
+                ) {
+                    filter { eq("user_id", target.userId) }
+                }.decodeSingleOrNull<NurseRow>() ?: return null
+
+                return Nurse(
                     id = target.userId,
                     name = target.name,
                     email = target.email,
@@ -136,6 +155,7 @@ class UserRepositoryImpl @Inject constructor(
                     phoneNo = target.phoneNo,
                     dateOfBirth = target.dateOfBirth,
                     gender = target.gender.first().uppercaseChar(),
+                    nurseId = nurse.nurseID
                 )
             }
         }
@@ -149,5 +169,21 @@ class UserRepositoryImpl @Inject constructor(
     override suspend fun deleteUser(user: User) {
     }
 
+    private suspend fun generateStaffId(prefix: Char): String {
+        val lastId: String? = when (prefix) {
+            'D' -> supabase.from("dentists").select(Columns.list("dentist_id")) {
+                order("dentist_id", Order.DESCENDING)
+                limit(1)
+            }.decodeSingleOrNull<DentistRow>()?.dentistID
+
+            else -> supabase.from("nurses").select(Columns.list("nurse_id")) {
+                order("nurse_id", Order.DESCENDING)
+                limit(1)
+            }.decodeSingleOrNull<NurseRow>()?.nurseID
+        }
+
+        val next = lastId?.removePrefix("$prefix")?.toIntOrNull()?.plus(1) ?: 1
+        return "$prefix%03d".format(next)
+    }
 }
 

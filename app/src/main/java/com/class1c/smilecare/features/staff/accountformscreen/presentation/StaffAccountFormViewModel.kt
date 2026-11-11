@@ -4,6 +4,7 @@ import android.util.Patterns
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.class1c.smilecare.domain.model.user.Dentist
+import com.class1c.smilecare.domain.model.user.Nurse
 import com.class1c.smilecare.domain.model.user.Patient
 import com.class1c.smilecare.domain.model.user.UserRole
 import com.class1c.smilecare.domain.repository.UserRepository
@@ -54,6 +55,7 @@ class StaffAccountFormViewModel @Inject constructor(
                  StaffAccountFormField.SPECIALTY -> it.copy(invalidSpecialization = validateSpecialization(it.specialization))
             }
         }
+        StaffAccountFormEvent.DismissSuccess -> { _uiState.value = StaffAccountFormUIState() }
         StaffAccountFormEvent.RegisterAccount -> {
             val user = _uiState.value
             // run the validation check again
@@ -79,44 +81,58 @@ class StaffAccountFormViewModel @Inject constructor(
                     invalidConfirmPassword = confirmPasswordErr
                 )}
             } else {
-                viewModelScope.launch {
-                    when (user.roleIndex) {
-                        0 -> userRepository.registerUser(
-                            Patient(
-                                id = UUID.randomUUID().toString(),
-                                name = user.fullName,
-                                email = user.email,
-                                password = user.password,
-                                nric = user.nric,
-                                phoneNo = user.phoneNo,
-                                dateOfBirth = user.dateOfBirth,
-                                hasInsurance = user.hasInsurance,
-                                gender = if (user.genderIndex == 0) 'F' else 'M',
-                                allergies = user.allergies,
-                                medicalNotes = user.medicalNotes,
-                            )
+                val registeredUser = when (user.roleIndex) {
+                    0 ->
+                        Patient(
+                            id = UUID.randomUUID().toString(),
+                            name = user.fullName,
+                            email = user.email,
+                            password = user.password,
+                            nric = user.nric,
+                            phoneNo = user.phoneNo,
+                            dateOfBirth = user.dateOfBirth,
+                            hasInsurance = user.hasInsurance,
+                            gender = if (user.genderIndex == 0) 'F' else 'M',
+                            allergies = user.allergies,
+                            medicalNotes = user.medicalNotes,
                         )
 
-                        1 -> userRepository.registerUser(
-                            Dentist(
-                                id = UUID.randomUUID().toString(),
-                                name = user.fullName,
-                                email = user.email,
-                                password = user.password,
-                                nric = user.nric,
-                                phoneNo = user.phoneNo,
-                                dateOfBirth = user.dateOfBirth,
-                                gender = if (user.genderIndex == 0) 'F' else 'M',
-                                specialty = user.specialization,
-                            )
+                    1 ->
+                        Dentist(
+                            id = UUID.randomUUID().toString(),
+                            name = user.fullName,
+                            email = user.email,
+                            password = user.password,
+                            nric = user.nric,
+                            phoneNo = user.phoneNo,
+                            dateOfBirth = user.dateOfBirth,
+                            gender = if (user.genderIndex == 0) 'F' else 'M',
+                            dentistId = user.dentistId,
+                            specialty = user.specialization,
                         )
 
-                        else -> null
-                    }
+                    2 ->
+                        Nurse(
+                            id = UUID.randomUUID().toString(),
+                            name = user.fullName,
+                            email = user.email,
+                            password = user.password,
+                            nric = user.nric,
+                            phoneNo = user.phoneNo,
+                            dateOfBirth = user.dateOfBirth,
+                            gender = if (user.genderIndex == 0) 'F' else 'M',
+                            nurseId = user.nurseId,
+                        )
+
+                    else -> error("Unknown role")
                 }
 
-                _uiState.update { it.copy(isRegistered = !it.isRegistered) }
-
+                viewModelScope.launch {
+                    _uiState.update { it.copy(isLoading = true) }
+                    runCatching { userRepository.registerUser(registeredUser) }
+                        .onSuccess { _uiState.update { it.copy(isLoading = false, successMessage = "Registration successful.") } }
+                        .onFailure { _uiState.update { it.copy(isLoading = false, registerError = "Registration failed. Ensure stable network connection and try again.") } }
+                }
             }
         }
         StaffAccountFormEvent.SaveAccountChanges -> TODO()
