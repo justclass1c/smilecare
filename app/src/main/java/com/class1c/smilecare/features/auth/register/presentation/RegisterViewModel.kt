@@ -49,6 +49,8 @@ class RegisterViewModel @Inject constructor(
                 RegisterField.PHONENO          -> it.copy(invalidPhoneNo          = validatePhoneNo(it.phoneNo))
                 RegisterField.PASSWORD         -> it.copy(invalidPassword         = validatePassword(it.password))
                 RegisterField.CONFIRMPASSWORD  -> it.copy(invalidConfirmPassword   = validateConfirmPassword(it.password, it.confirmPassword))
+                RegisterField.ALLERGIES        -> it.copy(invalidAllergies = validateAllergies(it.allergies))
+                RegisterField.MEDICALNOTES        -> it.copy(invalidMedicalNotes = validateMedicalNotes(it.medicalNotes))
                 RegisterField.SPECIALTY -> it.copy(invalidSpecialization = validateSpecialization(it.specialization))
             }
         }
@@ -110,6 +112,7 @@ class RegisterViewModel @Inject constructor(
     // common fields
     private fun validateName(fullName: String): String? {
         if (fullName.isEmpty()) return "Name cannot be empty."
+        else if (fullName.length > 50) return "Name cannot be longer than 50 characters."
         return null
     }
     private fun validateDateOfBirth(dateOfBirth: String): String? {
@@ -155,11 +158,22 @@ class RegisterViewModel @Inject constructor(
     }
 
     // role-exclusive fields (invoked from RegisterAccount's validateAll step, not from blur)
+    // den
     private fun validateSpecialization(specialization: String): String? {
         if (specialization.isEmpty()) return "Specify specialization."
+        else if (specialization.length > 50) return "Cannot be longer than 50 characters."
         return null
     }
 
+    private fun validateAllergies(allergies: String): String? {
+        if (allergies.length > 50) return "Cannot be longer than 50 characters."
+        return null
+    }
+
+    private fun validateMedicalNotes(medicalNotes: String): String? {
+        if (medicalNotes.length > 50) return "Cannot be longer than 50 characters."
+        return null
+    }
     private fun validateEmployeeID(employeeID: String): String? = null
 
 }

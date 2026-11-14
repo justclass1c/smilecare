@@ -36,6 +36,7 @@ data class RegisterUIState(
     val invalidPassword: String? = null,
     val invalidConfirmPassword: String? = null,
     val invalidAllergies: String? = null,
+    val invalidMedicalNotes: String? = null,
     val invalidSpecialization: String? = null,
     val invalidEmployeeID: String? = null,
 

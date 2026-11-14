@@ -4,6 +4,9 @@ enum class RegisterField {
     // user attributes
     NAME, DATEOFBIRTH, GENDER, NRIC, EMAIL, PHONENO, PASSWORD, CONFIRMPASSWORD,
 
+    // patient-exclusive
+    ALLERGIES, MEDICALNOTES,
+
     // dentist-exclusive
     SPECIALTY
 }

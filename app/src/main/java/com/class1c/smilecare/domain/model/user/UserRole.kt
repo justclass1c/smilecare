@@ -8,6 +8,5 @@ package com.class1c.smilecare.domain.model.user
 enum class UserRole {
     PATIENT,
     DENTIST,
-    RECEPTIONIST,
-    ADMIN
+    NURSE,
 }

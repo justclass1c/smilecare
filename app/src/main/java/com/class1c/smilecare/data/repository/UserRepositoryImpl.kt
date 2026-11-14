@@ -185,5 +185,6 @@ class UserRepositoryImpl @Inject constructor(
         val next = lastId?.removePrefix("$prefix")?.toIntOrNull()?.plus(1) ?: 1
         return "$prefix%03d".format(next)
     }
+
 }
 

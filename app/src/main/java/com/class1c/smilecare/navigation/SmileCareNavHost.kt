@@ -140,11 +140,9 @@ fun SmileCareNavHost(
                         UserRole.DENTIST -> {
                             navigateToTab(Route.Schedule)
                         }
-                        UserRole.RECEPTIONIST -> {
+                        UserRole.NURSE-> {
                             navigateToTab(Route.Appointments)
                         }
-
-                        UserRole.ADMIN -> TODO()
                     }
                 },
                 onSecondaryQuickActionClick = {
