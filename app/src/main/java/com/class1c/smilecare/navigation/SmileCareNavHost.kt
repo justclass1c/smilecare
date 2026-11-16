@@ -39,8 +39,9 @@ import com.class1c.smilecare.features.profile.presentation.ProfileScreen
 import com.class1c.smilecare.features.schedule.presentation.ScheduleScreen
 import com.class1c.smilecare.features.services.presentation.DeleteServiceScreen
 import com.class1c.smilecare.features.services.presentation.ServiceDetailScreen
-import com.class1c.smilecare.features.services.presentation.ServiceFormScreen
+import com.class1c.smilecare.features.services.servicesformscreen.presentation.ServiceFormScreen
 import com.class1c.smilecare.features.services.presentation.ServicesScreen
+import com.class1c.smilecare.features.services.servicesformscreen.presentation.ServiceFormViewModel
 import com.class1c.smilecare.features.staff.presentation.DeleteStaffAccountScreen
 import com.class1c.smilecare.features.staff.presentation.StaffAccountDetailScreen
 import com.class1c.smilecare.features.staff.accountformscreen.presentation.StaffAccountFormScreen
@@ -368,10 +369,14 @@ fun SmileCareNavHost(
         }
 
         composable(Route.ServiceForm.path) { backStackEntry ->
+            val viewModel: ServiceFormViewModel = hiltViewModel()
+            val state by viewModel.uiState.collectAsStateWithLifecycle()
             val serviceId = backStackEntry.arguments
                 ?.getString(Route.ServiceForm.ID_ARG)
                 ?: "new"
             ServiceFormScreen(
+                state = state,
+                onEvent = viewModel::onEvent,
                 isEditing = serviceId != "new",
                 onBackClick = {
                     navController.popBackStack()

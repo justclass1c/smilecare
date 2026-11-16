@@ -1,11 +1,10 @@
 package com.class1c.smilecare.domain.model.user
 
 /**
- * A receptionist account: every [User] field plus the staff details needed to
- * identify where the person works.
+ * A nurse account: every [User] field plus the staff details needed to
+ * identify the nurse within the clinic.
  *
- * `employeeId` is the clinic's own staff number (not the account [User.id]),
- * and `branch` says which clinic location the desk belongs to.
+ * `nurseId` is the clinic's own staff number (not the account [User.id]).
  */
 data class Nurse(
     override val id: String,
@@ -19,5 +18,5 @@ data class Nurse(
     val nurseId: String,
 ) : User {
 
-    override val role: UserRole = UserRole.RECEPTIONIST
+    override val role: UserRole = UserRole.NURSE
 }

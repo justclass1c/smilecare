@@ -23,7 +23,7 @@ data class StaffAccountFormUIState(
     val dentistId: String = "",
     val specialization: String = "",
 
-    // receptionist-exclusive fields
+    // nurse-exclusive fields
     val nurseId: String = "",
 
     // validation states

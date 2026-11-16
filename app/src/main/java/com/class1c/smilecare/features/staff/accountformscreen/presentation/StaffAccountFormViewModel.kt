@@ -194,6 +194,4 @@ class StaffAccountFormViewModel @Inject constructor(
         if (specialization.isEmpty()) return "Specify specialization."
         return null
     }
-
-    private fun validateEmployeeID(employeeID: String): String? = null
 }

@@ -22,9 +22,6 @@ data class RegisterUIState(
     // dentist-exclusive fields
     val specialization: String = "",
 
-    // receptionist-exclusive fields
-    val employeeID: String = "",
-
     // validation states
     // nullable error message: null = field is valid, non-null = reason shown to the user
     val invalidName: String? = null,

@@ -174,6 +174,5 @@ class RegisterViewModel @Inject constructor(
         if (medicalNotes.length > 50) return "Cannot be longer than 50 characters."
         return null
     }
-    private fun validateEmployeeID(employeeID: String): String? = null
 
 }
