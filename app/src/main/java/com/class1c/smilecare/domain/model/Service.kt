@@ -10,6 +10,6 @@ data class Service(
     val serviceID: String,
     val serviceName: String,
     val description: String,
-    val price: Double,
+    val price: Float,
     val modifiedDate: String,
 )

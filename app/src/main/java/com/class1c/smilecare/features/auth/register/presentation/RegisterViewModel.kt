@@ -110,6 +110,7 @@ class RegisterViewModel @Inject constructor(
     // Convention: return a short user-facing message when invalid, null when valid.
 
     // common fields
+    // TODO: add length checks depending on supabase field length
     private fun validateName(fullName: String): String? {
         if (fullName.isEmpty()) return "Name cannot be empty."
         else if (fullName.length > 50) return "Name cannot be longer than 50 characters."

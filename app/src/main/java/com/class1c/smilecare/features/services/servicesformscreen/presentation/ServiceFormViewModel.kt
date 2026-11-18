@@ -1,15 +1,22 @@
 package com.class1c.smilecare.features.services.servicesformscreen.presentation
 
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
+import com.class1c.smilecare.domain.model.Service
+import com.class1c.smilecare.domain.repository.ServiceRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
+import kotlinx.coroutines.launch
+import java.time.LocalDate
+import java.time.format.DateTimeFormatter
 import javax.inject.Inject
 
 @HiltViewModel
 class ServiceFormViewModel @Inject constructor(
+    private val serviceRepository: ServiceRepository
 ): ViewModel() {
     private val _uiState = MutableStateFlow(ServiceFormUIState())
 
@@ -47,7 +54,17 @@ class ServiceFormViewModel @Inject constructor(
                     )
                 }
             } else {
-                // supabase operation
+                viewModelScope.launch {
+                    serviceRepository.insertService(
+                        Service(
+                            serviceID = "",
+                            serviceName = service.name,
+                            description = service.description,
+                            price = service.price.toFloat(),
+                            modifiedDate = LocalDate.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd"))
+                        )
+                    )
+                }
             }
         }
     }

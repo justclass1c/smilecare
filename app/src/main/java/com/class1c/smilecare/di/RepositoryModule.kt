@@ -2,9 +2,11 @@ package com.class1c.smilecare.di
 
 import com.class1c.smilecare.data.repository.DentistRepositoryImpl
 import com.class1c.smilecare.data.repository.InMemoryAppointmentRepository
+import com.class1c.smilecare.data.repository.ServiceRepositoryImpl
 import com.class1c.smilecare.data.repository.UserRepositoryImpl
 import com.class1c.smilecare.domain.repository.AppointmentRepository
 import com.class1c.smilecare.domain.repository.DentistRepository
+import com.class1c.smilecare.domain.repository.ServiceRepository
 import com.class1c.smilecare.domain.repository.UserRepository
 import dagger.Binds
 import dagger.Module
@@ -35,4 +37,10 @@ abstract class RepositoryModule {
     abstract fun bindUserRepository(
         implementation: UserRepositoryImpl
     ): UserRepository
+
+    @Binds
+    @Singleton
+    abstract fun bindServiceRepository(
+        implementation: ServiceRepositoryImpl
+    ): ServiceRepository
 }
