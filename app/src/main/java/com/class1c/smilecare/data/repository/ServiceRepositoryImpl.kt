@@ -23,7 +23,9 @@ class ServiceRepositoryImpl @Inject constructor(
                 serviceName = service.serviceName,
                 description = service.description,
                 price = service.price,
-                modifiedDate = service.modifiedDate
+                modifiedDate = service.modifiedDate,
+                isActive = service.isActive,
+                duration = service.duration
             )
         )
     }
@@ -32,8 +34,23 @@ class ServiceRepositoryImpl @Inject constructor(
         TODO("Not yet implemented")
     }
 
-    override suspend fun listServices(service: Service): Service {
-        TODO("Not yet implemented")
+    override suspend fun listServices(): List<Service> {
+        return supabase.from("services").select(
+            Columns.list("service_id", "service_name", "description", "price", "modified_date", "is_active", "duration")) {
+            order("service_id", Order.ASCENDING)
+            limit(1)
+        }.decodeList<ServiceRow>()
+        .map { row ->
+            Service(
+                serviceID = row.serviceID,
+                serviceName = row.serviceName,
+                description = row.description,
+                price = row.price,
+                modifiedDate = row.modifiedDate,
+                isActive = row.isActive,
+                duration = row.duration
+            )
+        }
     }
 
     override suspend fun deleteService(service: Service) {

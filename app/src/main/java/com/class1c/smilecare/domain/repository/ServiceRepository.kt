@@ -7,7 +7,7 @@ interface ServiceRepository {
 
     suspend fun modifyService(service: Service)
 
-    suspend fun listServices(service: Service): Service
+    suspend fun listServices(): List<Service>
 
     suspend fun deleteService(service: Service)
 }

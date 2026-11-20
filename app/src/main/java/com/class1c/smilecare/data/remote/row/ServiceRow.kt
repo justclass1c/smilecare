@@ -9,5 +9,7 @@ data class ServiceRow(
     @SerialName("service_name") val serviceName: String,
     val description: String,
     val price: Float,
-    @SerialName("modified_date") val modifiedDate: String
+    @SerialName("modified_date") val modifiedDate: String,
+    @SerialName("is_active") val isActive: Boolean,
+    val duration: Int
 )

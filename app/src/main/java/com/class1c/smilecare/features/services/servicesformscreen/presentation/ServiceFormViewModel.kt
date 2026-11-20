@@ -61,7 +61,9 @@ class ServiceFormViewModel @Inject constructor(
                             serviceName = service.name,
                             description = service.description,
                             price = service.price.toFloat(),
-                            modifiedDate = LocalDate.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd"))
+                            modifiedDate = LocalDate.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd")),
+                            isActive = service.isActive,
+                            duration = service.duration.toInt()
                         )
                     )
                 }

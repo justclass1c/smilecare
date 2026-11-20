@@ -40,8 +40,9 @@ import com.class1c.smilecare.features.schedule.presentation.ScheduleScreen
 import com.class1c.smilecare.features.services.presentation.DeleteServiceScreen
 import com.class1c.smilecare.features.services.presentation.ServiceDetailScreen
 import com.class1c.smilecare.features.services.servicesformscreen.presentation.ServiceFormScreen
-import com.class1c.smilecare.features.services.presentation.ServicesScreen
+import com.class1c.smilecare.features.servicesscreen.presentation.ServicesScreen
 import com.class1c.smilecare.features.services.servicesformscreen.presentation.ServiceFormViewModel
+import com.class1c.smilecare.features.servicesscreen.presentation.ServicesScreenViewModel
 import com.class1c.smilecare.features.staff.presentation.DeleteStaffAccountScreen
 import com.class1c.smilecare.features.staff.presentation.StaffAccountDetailScreen
 import com.class1c.smilecare.features.staff.accountformscreen.presentation.StaffAccountFormScreen
@@ -337,7 +338,11 @@ fun SmileCareNavHost(
         }
 
         composable(Route.Services.path) {
+            val viewModel: ServicesScreenViewModel = hiltViewModel()
+            val state by viewModel.uiState.collectAsStateWithLifecycle()
+
             ServicesScreen(
+                state = state,
                 role = role,
                 onServiceClick = { serviceId ->
                     navController.navigate(Route.ServiceDetail.create(serviceId))

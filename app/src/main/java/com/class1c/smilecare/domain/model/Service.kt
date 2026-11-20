@@ -12,4 +12,6 @@ data class Service(
     val description: String,
     val price: Float,
     val modifiedDate: String,
+    val isActive: Boolean,
+    val duration: Int
 )
