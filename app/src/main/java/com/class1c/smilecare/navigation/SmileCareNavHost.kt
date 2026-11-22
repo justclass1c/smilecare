@@ -26,10 +26,21 @@ import com.class1c.smilecare.features.auth.register.presentation.RegisterScreen
 import com.class1c.smilecare.features.auth.presentation.SplashScreen
 import com.class1c.smilecare.features.auth.register.presentation.RegisterViewModel
 import com.class1c.smilecare.features.home.presentation.HomeScreen
+import com.class1c.smilecare.features.inventory.equipmentdetail.presentation.EquipmentDetailScreen
+import com.class1c.smilecare.features.inventory.equipmentdetail.presentation.EquipmentDetailViewModel
+import com.class1c.smilecare.features.inventory.equipmentform.presentation.EquipmentFormScreen
+import com.class1c.smilecare.features.inventory.equipmentform.presentation.EquipmentFormViewModel
+import com.class1c.smilecare.features.inventory.inventorydetail.presentation.InventoryItemDetailScreen
+import com.class1c.smilecare.features.inventory.inventorydetail.presentation.InventoryItemDetailViewModel
+import com.class1c.smilecare.features.inventory.itemform.presentation.ItemFormScreen
+import com.class1c.smilecare.features.inventory.itemform.presentation.ItemFormViewModel
 import com.class1c.smilecare.features.inventory.presentation.EquipmentScreen
+import com.class1c.smilecare.features.inventory.presentation.EquipmentViewModel
 import com.class1c.smilecare.features.inventory.presentation.InventoryScreen
+import com.class1c.smilecare.features.inventory.presentation.InventoryViewModel
 import com.class1c.smilecare.features.lucky.presentation.LuckyDrawScreen
 import com.class1c.smilecare.features.manage.presentation.ManageClinicScreen
+import com.class1c.smilecare.features.manage.presentation.ManageClinicViewModel
 import com.class1c.smilecare.features.payments.presentation.PaymentsScreen
 import com.class1c.smilecare.features.patients.presentation.PatientDetailScreen
 import com.class1c.smilecare.features.patients.presentation.PatientsScreen
@@ -474,23 +485,134 @@ fun SmileCareNavHost(
         }
 
         composable(Route.Inventory.path) {
+            val viewModel: InventoryViewModel = hiltViewModel()
+            val state by viewModel.uiState.collectAsStateWithLifecycle()
+            LaunchedEffect(Unit) {
+                viewModel.refresh()
+            }
             InventoryScreen(
-                onItemClick = { itemId -> },
-                onAddClick = {},
+                items = state.items,
+                isLoading = state.isLoading,
+                errorMessage = state.errorMessage,
+                onItemClick = { itemName ->
+                    navController.navigate(Route.InventoryDetail.create(itemName))
+                },
+                onAddClick = {
+                    navController.navigate(Route.ItemForm.create())
+                },
+                onRetryClick = viewModel::refresh,
+                onBackClick = {
+                    navigateToTab(Route.ManageClinic)
+                },
                 onNavigate = navigateToTab,
+            )
+        }
+
+        composable(Route.ItemForm.path) {
+            val viewModel: ItemFormViewModel = hiltViewModel()
+            val state by viewModel.uiState.collectAsStateWithLifecycle()
+            ItemFormScreen(
+                state = state,
+                onEvent = viewModel::onEvent,
+                onBackClick = {
+                    navController.popBackStack()
+                },
+                onSaved = {
+                    navController.popBackStack()
+                },
+            )
+        }
+
+        composable(Route.InventoryDetail.path) { backStackEntry ->
+            val viewModel: InventoryItemDetailViewModel = hiltViewModel()
+            val state by viewModel.uiState.collectAsStateWithLifecycle()
+            val itemName = backStackEntry.arguments
+                ?.getString(Route.InventoryDetail.NAME_ARG)
+                .orEmpty()
+            InventoryItemDetailScreen(
+                itemName = itemName,
+                state = state,
+                onEvent = viewModel::onEvent,
+                onLoad = viewModel::load,
+                onBackClick = {
+                    navController.popBackStack()
+                },
+                onFinished = {
+                    navController.popBackStack()
+                },
             )
         }
 
         composable(Route.Equipment.path) {
+            val viewModel: EquipmentViewModel = hiltViewModel()
+            val state by viewModel.uiState.collectAsStateWithLifecycle()
+            LaunchedEffect(Unit) {
+                viewModel.refresh()
+            }
             EquipmentScreen(
-                onEquipmentClick = { equipmentId -> },
-                onAddClick = {},
+                items = state.items,
+                isLoading = state.isLoading,
+                errorMessage = state.errorMessage,
+                onEquipmentClick = { equipmentName ->
+                    navController.navigate(Route.EquipmentDetail.create(equipmentName))
+                },
+                onAddClick = {
+                    navController.navigate(Route.EquipmentForm.create())
+                },
+                onRetryClick = viewModel::refresh,
+                onBackClick = {
+                    navigateToTab(Route.ManageClinic)
+                },
                 onNavigate = navigateToTab,
             )
         }
 
+        composable(Route.EquipmentDetail.path) { backStackEntry ->
+            val viewModel: EquipmentDetailViewModel = hiltViewModel()
+            val state by viewModel.uiState.collectAsStateWithLifecycle()
+            val equipmentName = backStackEntry.arguments
+                ?.getString(Route.EquipmentDetail.NAME_ARG)
+                .orEmpty()
+            EquipmentDetailScreen(
+                equipmentName = equipmentName,
+                state = state,
+                onEvent = viewModel::onEvent,
+                onLoad = viewModel::load,
+                onBackClick = {
+                    navController.popBackStack()
+                },
+                onFinished = {
+                    navController.popBackStack()
+                },
+            )
+        }
+
+        composable(Route.EquipmentForm.path) {
+            val viewModel: EquipmentFormViewModel = hiltViewModel()
+            val state by viewModel.uiState.collectAsStateWithLifecycle()
+            EquipmentFormScreen(
+                state = state,
+                onEvent = viewModel::onEvent,
+                onBackClick = {
+                    navController.popBackStack()
+                },
+                onSaved = {
+                    navController.popBackStack()
+                },
+            )
+        }
+
         composable(Route.ManageClinic.path) {
+            val viewModel: ManageClinicViewModel = hiltViewModel()
+            val state by viewModel.uiState.collectAsStateWithLifecycle()
+            LaunchedEffect(Unit) {
+                viewModel.refresh()
+            }
             ManageClinicScreen(
+                inventoryCount = state.inventoryCount,
+                equipmentCount = state.equipmentCount,
+                isLoading = state.isLoading,
+                errorMessage = state.errorMessage,
                 onUsersClick = {
                     navigateToTab(Route.StaffAccounts)
                 },

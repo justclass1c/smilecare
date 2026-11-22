@@ -1,5 +1,7 @@
 package com.class1c.smilecare.navigation
 
+import android.net.Uri
+
 /**
  * Every destination in the app, in one place.
  * Add new screens here so route strings are never duplicated.
@@ -145,8 +147,37 @@ sealed interface Route {
         override val path: String = "inventory"
     }
 
+    data object ItemForm : Route {
+        const val ID_ARG: String = "itemId"
+        override val path: String = "item-form/{$ID_ARG}"
+
+        fun create(itemId: String = "new"): String = "item-form/$itemId"
+    }
+
+    data object InventoryDetail : Route {
+        const val NAME_ARG: String = "itemName"
+        override val path: String = "inventory-detail/{$NAME_ARG}"
+
+        fun create(itemName: String): String = "inventory-detail/${Uri.encode(itemName)}"
+    }
+
     data object Equipment : Route {
         override val path: String = "equipment"
+    }
+
+    data object EquipmentForm : Route {
+        const val ID_ARG: String = "equipmentId"
+        override val path: String = "equipment-form/{$ID_ARG}"
+
+        fun create(equipmentId: String = "new"): String = "equipment-form/$equipmentId"
+    }
+
+    data object EquipmentDetail : Route {
+        const val NAME_ARG: String = "equipmentName"
+        override val path: String = "equipment-detail/{$NAME_ARG}"
+
+        fun create(equipmentName: String): String =
+            "equipment-detail/${Uri.encode(equipmentName)}"
     }
 
     data object ManageClinic : Route {
