@@ -21,6 +21,7 @@ import com.class1c.smilecare.navigation.Route
 import com.class1c.smilecare.ui.components.NoticeCard
 import com.class1c.smilecare.ui.components.QuickActionCard
 import com.class1c.smilecare.ui.components.SmileScreen
+import com.class1c.smilecare.ui.components.StatusTone
 
 /**
  * Reception management hub. Every tile is a navigation event; counts are
@@ -28,6 +29,10 @@ import com.class1c.smilecare.ui.components.SmileScreen
  */
 @Composable
 fun ManageClinicScreen(
+    inventoryCount: Int = 0,
+    equipmentCount: Int = 0,
+    isLoading: Boolean = false,
+    errorMessage: String? = null,
     onUsersClick: () -> Unit = {},
     onServicesClick: () -> Unit = {},
     onInventoryClick: () -> Unit = {},
@@ -47,6 +52,14 @@ fun ManageClinicScreen(
             color = MaterialTheme.colorScheme.onSurfaceVariant,
         )
 
+        if (errorMessage != null) {
+            NoticeCard(
+                text = errorMessage,
+                title = "Could not load clinic totals",
+                tone = StatusTone.DANGER,
+            )
+        }
+
         val cards = listOf(
             ManageCard(
                 title = "Users",
@@ -62,13 +75,21 @@ fun ManageClinicScreen(
             ),
             ManageCard(
                 title = "Inventory",
-                subtitle = "Supplies & stock · 0 items",
+                subtitle = if (isLoading) {
+                    "Supplies & stock · loading..."
+                } else {
+                    "Supplies & stock · $inventoryCount items"
+                },
                 icon = Icons.Filled.Inventory2,
                 onClick = onInventoryClick,
             ),
             ManageCard(
                 title = "Equipment",
-                subtitle = "Care for your tools · 0 assets",
+                subtitle = if (isLoading) {
+                    "Care for your tools · loading..."
+                } else {
+                    "Care for your tools · $equipmentCount assets"
+                },
                 icon = Icons.Filled.Build,
                 onClick = onEquipmentClick,
             ),

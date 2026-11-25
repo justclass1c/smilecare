@@ -6,15 +6,26 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Build
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExtendedFloatingActionButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
+import com.class1c.smilecare.domain.model.Equipment
+import com.class1c.smilecare.domain.model.STATUS_DUE_SOON
+import com.class1c.smilecare.domain.model.STATUS_OVERDUE
+import com.class1c.smilecare.domain.model.STATUS_UNDER_REPAIR
 import com.class1c.smilecare.domain.model.user.UserRole
 import com.class1c.smilecare.navigation.Route
+import com.class1c.smilecare.ui.components.EmptyState
 import com.class1c.smilecare.ui.components.ListRow
 import com.class1c.smilecare.ui.components.MetricCard
 import com.class1c.smilecare.ui.components.NoticeCard
@@ -22,23 +33,37 @@ import com.class1c.smilecare.ui.components.SmileScreen
 import com.class1c.smilecare.ui.components.SmileTabs
 import com.class1c.smilecare.ui.components.SmileTextField
 import com.class1c.smilecare.ui.components.StatusTone
+import com.class1c.smilecare.ui.components.TextAction
 
 /**
- * Equipment register with maintenance states. Tapping an asset reports its id
- * to the caller; no records are owned here.
+ * Equipment register backed by the `Equipment` table. Tapping an asset reports
+ * its id to the caller; no records are owned here.
  */
 @Composable
 fun EquipmentScreen(
+    items: List<Equipment> = emptyList(),
+    isLoading: Boolean = false,
+    errorMessage: String? = null,
     selectedTab: Int = 0,
     onTabChange: (Int) -> Unit = {},
     onEquipmentClick: (String) -> Unit = {},
     onAddClick: () -> Unit = {},
+    onRetryClick: () -> Unit = {},
+    onBackClick: () -> Unit = {},
     onNavigate: (Route) -> Unit = {},
 ) {
+    var searchQuery by remember { mutableStateOf("") }
+
+    val visibleItems = items.filter { equipment ->
+        equipment.equipmentName.contains(searchQuery, ignoreCase = true) ||
+            equipment.location.contains(searchQuery, ignoreCase = true)
+    }
+
     SmileScreen(
         role = UserRole.NURSE,
         currentRoute = Route.Equipment,
         title = "Equipment",
+        onBackClick = onBackClick,
         onNavigate = onNavigate,
         floatingActionButton = {
             ExtendedFloatingActionButton(
@@ -62,7 +87,8 @@ fun EquipmentScreen(
         )
         SmileTextField(
             label = "Search equipment",
-            value = "",
+            value = searchQuery,
+            onValueChange = { searchQuery = it },
             placeholder = "Search",
         )
         Row(
@@ -71,14 +97,19 @@ fun EquipmentScreen(
         ) {
             MetricCard(
                 label = "Total equipment",
-                value = "00",
-                hint = "Error text",
+                value = items.size.toString().padStart(2, '0'),
+                hint = if (isLoading) "Loading" else "In the register",
                 modifier = Modifier.weight(1f),
             )
             MetricCard(
-                label = "Needs attention",
-                value = "00",
-                hint = "Error text",
+                label = "Rooms in use",
+                value = items.map { it.location }
+                    .filter { it.isNotBlank() }
+                    .distinct()
+                    .size
+                    .toString()
+                    .padStart(2, '0'),
+                hint = "Distinct locations",
                 modifier = Modifier.weight(1f),
             )
         }
@@ -88,15 +119,59 @@ fun EquipmentScreen(
             onSelect = onTabChange,
         )
 
-        equipmentItems.forEach { item ->
-            ListRow(
-                icon = Icons.Filled.Build,
-                title = item.name,
-                subtitle = item.subtitle,
-                badgeText = item.status,
-                badgeTone = item.tone,
-                onClick = { onEquipmentClick(item.id) },
+        if (isLoading) {
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.spacedBy(12.dp),
+                verticalAlignment = Alignment.CenterVertically,
+            ) {
+                CircularProgressIndicator()
+                Text(
+                    text = "Loading equipment...",
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                )
+            }
+        } else if (errorMessage != null) {
+            NoticeCard(
+                text = errorMessage,
+                title = "Could not load equipment",
+                tone = StatusTone.DANGER,
             )
+            TextAction(
+                text = "Try again",
+                onClick = onRetryClick,
+            )
+        } else if (selectedTab == 1) {
+            EmptyState(
+                title = "Nothing scheduled",
+                message = "Maintenance records are not tracked yet.",
+                icon = Icons.Filled.Build,
+            )
+        } else if (visibleItems.isEmpty()) {
+            val hasItems = items.isNotEmpty()
+            EmptyState(
+                title = if (hasItems) "Nothing matches" else "No equipment yet",
+                message = if (hasItems) {
+                    "Try a different search."
+                } else {
+                    "Add your first asset to start the register."
+                },
+                icon = Icons.Filled.Build,
+                actionLabel = if (hasItems) null else "Add asset",
+                onActionClick = onAddClick,
+            )
+        } else {
+            visibleItems.forEach { equipment ->
+                ListRow(
+                    icon = Icons.Filled.Build,
+                    title = equipment.equipmentName,
+                    subtitle = equipment.location.ifBlank { "No location set" },
+                    badgeText = equipment.status,
+                    badgeTone = equipmentStatusTone(equipment.status),
+                    onClick = { onEquipmentClick(equipment.equipmentName) },
+                )
+            }
         }
 
         NoticeCard(
@@ -105,41 +180,9 @@ fun EquipmentScreen(
     }
 }
 
-private data class EquipmentItem(
-    val id: String,
-    val name: String,
-    val subtitle: String,
-    val status: String,
-    val tone: StatusTone,
-)
-
-private val equipmentItems = listOf(
-    EquipmentItem(
-        id = "equipment-1",
-        name = "Equipment name",
-        subtitle = "Treatment Room 1",
-        status = "Operational",
-        tone = StatusTone.SUCCESS,
-    ),
-    EquipmentItem(
-        id = "equipment-2",
-        name = "Equipment name",
-        subtitle = "Service due · DD/MM/YY",
-        status = "Due soon",
-        tone = StatusTone.WARNING,
-    ),
-    EquipmentItem(
-        id = "equipment-3",
-        name = "Equipment name",
-        subtitle = "Service due · DD/MM/YY",
-        status = "Overdue",
-        tone = StatusTone.DANGER,
-    ),
-    EquipmentItem(
-        id = "equipment-4",
-        name = "Equipment name",
-        subtitle = "Treatment Room 2",
-        status = "Under repair",
-        tone = StatusTone.DANGER,
-    ),
-)
+private fun equipmentStatusTone(status: String): StatusTone = when (status) {
+    STATUS_OVERDUE -> StatusTone.DANGER
+    STATUS_DUE_SOON -> StatusTone.WARNING
+    STATUS_UNDER_REPAIR -> StatusTone.INFO
+    else -> StatusTone.SUCCESS
+}

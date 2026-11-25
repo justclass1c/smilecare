@@ -9,5 +9,5 @@ data class Item(
     val itemID: String,
     val itemName: String,
     val quantity: Int,
-    val price: Double,
+    val price: Float,
 )
