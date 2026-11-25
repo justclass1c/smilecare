@@ -49,7 +49,7 @@ import com.class1c.smilecare.features.profile.presentation.EditProfileScreen
 import com.class1c.smilecare.features.profile.presentation.ProfileScreen
 import com.class1c.smilecare.features.schedule.presentation.ScheduleScreen
 import com.class1c.smilecare.features.services.presentation.DeleteServiceScreen
-import com.class1c.smilecare.features.services.presentation.ServiceDetailScreen
+import com.class1c.smilecare.features.services.servicedetail.presentation.ServiceDetailScreen
 import com.class1c.smilecare.features.services.servicesformscreen.presentation.ServiceFormScreen
 import com.class1c.smilecare.features.servicesscreen.presentation.ServicesScreen
 import com.class1c.smilecare.features.services.servicesformscreen.presentation.ServiceFormViewModel
