@@ -43,7 +43,7 @@ import com.class1c.smilecare.features.manage.presentation.ManageClinicScreen
 import com.class1c.smilecare.features.manage.presentation.ManageClinicViewModel
 import com.class1c.smilecare.features.payments.presentation.PaymentsScreen
 import com.class1c.smilecare.features.patients.presentation.PatientDetailScreen
-import com.class1c.smilecare.features.patients.presentation.PatientsScreen
+import com.class1c.smilecare.features.user.presentation.UsersScreen
 import com.class1c.smilecare.features.profile.presentation.DeleteAccountScreen
 import com.class1c.smilecare.features.profile.presentation.EditProfileScreen
 import com.class1c.smilecare.features.profile.presentation.ProfileScreen
@@ -58,7 +58,7 @@ import com.class1c.smilecare.features.staff.presentation.DeleteStaffAccountScree
 import com.class1c.smilecare.features.staff.presentation.StaffAccountDetailScreen
 import com.class1c.smilecare.features.staff.accountformscreen.presentation.StaffAccountFormScreen
 import com.class1c.smilecare.features.staff.accountformscreen.presentation.StaffAccountFormViewModel
-import com.class1c.smilecare.features.staff.presentation.StaffAccountsScreen
+import com.class1c.smilecare.features.user.presentation.UsersViewModel
 
 /**
  * Single place where features are glued to routes. The role is supplied here
@@ -310,8 +310,12 @@ fun SmileCareNavHost(
         }
 
         composable(Route.Patients.path) {
-            PatientsScreen(
+            val viewModel: UsersViewModel = hiltViewModel()
+            val state by viewModel.uiState.collectAsStateWithLifecycle()
+            UsersScreen(
                 role = role,
+                state = state,
+                event = viewModel::onEvent,
                 onPatientClick = { patientId ->
                     navController.navigate(Route.PatientDetail.create(patientId))
                 },
@@ -422,11 +426,16 @@ fun SmileCareNavHost(
         }
 
         composable(Route.StaffAccounts.path) {
-            StaffAccountsScreen(
-                onAccountClick = { staffId ->
-                    navController.navigate(Route.StaffAccountDetail.create(staffId))
+            val viewModel: UsersViewModel = hiltViewModel()
+            val state by viewModel.uiState.collectAsStateWithLifecycle()
+            UsersScreen(
+                role = role,
+                state = state,
+                event = viewModel::onEvent,
+                onPatientClick = { userId ->
+                    navController.navigate(Route.StaffAccountDetail.create(userId))
                 },
-                onAddClick = {
+                onAddStaffClick = {
                     navController.navigate(Route.StaffAccountForm.create("new"))
                 },
                 onNavigate = navigateToTab,

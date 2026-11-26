@@ -1,6 +1,9 @@
 package com.class1c.smilecare.data.repository
 
 import com.class1c.smilecare.data.remote.row.DentistRow
+import com.class1c.smilecare.data.remote.row.JoinedUserDentistRow
+import com.class1c.smilecare.data.remote.row.JoinedUserNurseRow
+import com.class1c.smilecare.data.remote.row.JoinedUserPatientRow
 import com.class1c.smilecare.data.remote.row.NurseRow
 import com.class1c.smilecare.data.remote.row.PatientRow
 import com.class1c.smilecare.data.remote.row.UserRow
@@ -163,12 +166,78 @@ class UserRepositoryImpl @Inject constructor(
         return null
     }
 
+    override suspend fun listUsers(category: Int): List<User> = when(category) {
+        0 -> {
+            return supabase.from("users").select(
+                Columns.raw("user_id, name, email, password, nric, phone_no, date_of_birth, gender, role, patients(has_insurance, allergies, medical_notes)")
+            ) {
+                filter { eq("role", "patient")}
+            }.decodeList<JoinedUserPatientRow>()
+            .map { row ->
+                Patient(
+                    id = row.userId,
+                    name = row.name,
+                    email = row.email,
+                    password = row.password,
+                    nric = row.nric,
+                    phoneNo = row.phoneNo,
+                    dateOfBirth = row.dateOfBirth,
+                    gender = row.gender.first().uppercaseChar(),
+                    hasInsurance = row.patients?.hasInsurance ?: false,
+                    allergies = row.patients?.allergies ?: "",
+                    medicalNotes = row.patients?.medicalNotes ?: ""
+                )
+            }
+        }
+
+        1 -> {
+            return supabase.from("users").select(
+                Columns.raw("user_id, name, email, password, nric, phone_no, date_of_birth, gender, role, dentists(dentist_id, specialty)")
+            ) {
+                filter { eq("role", "dentist") }
+            }.decodeList<JoinedUserDentistRow>()
+            .map { row ->
+                Dentist(
+                    id = row.userId,
+                    name = row.name,
+                    email = row.email,
+                    password = row.password,
+                    nric = row.nric,
+                    phoneNo = row.phoneNo,
+                    dateOfBirth = row.dateOfBirth,
+                    gender = row.gender.first().uppercaseChar(),
+                    dentistId = row.dentists?.dentistId ?: "",
+                    specialty = row.dentists?.specialty ?: "",
+                )
+            }
+        }
+
+        else -> {
+            return supabase.from("users").select(
+                Columns.raw("user_id, name, email, password, nric, phone_no, date_of_birth, gender, role, nurses(nurse_id)")
+            ) { 
+                filter { eq("role", "nurse") }
+            }.decodeList<JoinedUserNurseRow>()
+            .map { row ->
+                Nurse(
+                    id = row.userId,
+                    name = row.name,
+                    email = row.email,
+                    password = row.password,
+                    nric = row.nric,
+                    phoneNo = row.phoneNo,
+                    dateOfBirth = row.dateOfBirth,
+                    gender = row.gender.first().uppercaseChar(),
+                    nurseId = row.nurses?.nurseId ?: "",
+                )
+            }
+        }
+    }
     override suspend fun updateUser(user: User) {
     }
 
     override suspend fun deleteUser(user: User) {
     }
-
     private suspend fun generateStaffId(prefix: Char): String {
         val lastId: String? = when (prefix) {
             'D' -> supabase.from("dentists").select(Columns.list("dentist_id")) {

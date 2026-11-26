@@ -38,7 +38,6 @@ class ServiceRepositoryImpl @Inject constructor(
         return supabase.from("services").select(
             Columns.list("service_id", "service_name", "description", "price", "modified_date", "is_active", "duration")) {
             order("service_id", Order.ASCENDING)
-            limit(1)
         }.decodeList<ServiceRow>()
         .map { row ->
             Service(
