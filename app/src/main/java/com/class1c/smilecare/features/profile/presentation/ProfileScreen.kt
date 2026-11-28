@@ -10,6 +10,10 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import com.class1c.smilecare.domain.model.user.Dentist
+import com.class1c.smilecare.domain.model.user.Nurse
+import com.class1c.smilecare.domain.model.user.Patient
+import com.class1c.smilecare.domain.model.user.User
 import com.class1c.smilecare.domain.model.user.UserRole
 import com.class1c.smilecare.navigation.Route
 import com.class1c.smilecare.ui.components.Avatar
@@ -33,7 +37,7 @@ import com.class1c.smilecare.ui.components.TextAction
  */
 @Composable
 fun ProfileScreen(
-    role: UserRole,
+    state: ProfileUIState,
     showDeleteDialog: Boolean = false,
     onEditProfileClick: () -> Unit = {},
     onChangePasswordClick: () -> Unit = {},
@@ -42,8 +46,10 @@ fun ProfileScreen(
     onLogoutClick: () -> Unit = {},
     onNavigate: (Route) -> Unit = {},
 ) {
+    val user: User? = state.user
+
     SmileScreen(
-        role = role,
+        role = state.user?.role,
         currentRoute = Route.Profile,
         onNavigate = onNavigate,
     ) {
@@ -54,62 +60,62 @@ fun ProfileScreen(
                 verticalArrangement = Arrangement.spacedBy(8.dp),
             ) {
                 Avatar(
-                    initials = when (role) {
-                        UserRole.PATIENT -> "PT"
-                        UserRole.DENTIST -> "DN"
-                        UserRole.NURSE -> "NR"
-                    },
+                    initials = initials(state.user?.name.orEmpty()),
                     size = 76.dp,
                 )
                 Text(
-                    text = "User name",
+                    text = user?.name ?: "Guest",
                     style = MaterialTheme.typography.titleLarge,
                     fontWeight = FontWeight.SemiBold,
                 )
-                RoleBadge(role = role)
+                RoleBadge(role = state.user?.role)
             }
         }
 
         SectionTitle(title = "Personal information")
         SmileCard {
-            DetailRow(label = "Full name", value = "User name")
+            DetailRow(label = "Full name", value = user?.name ?: "Guest")
             SmileDivider()
-            DetailRow(label = "Email", value = "email@example.com")
+            DetailRow(label = "Email", value = user?.email ?: "Not logged in")
             SmileDivider()
-            DetailRow(label = "Phone", value = "000-000 0000")
+            DetailRow(label = "Phone", value = user?.phoneNo ?: "Not logged in")
             SmileDivider()
-            when (role) {
-                UserRole.PATIENT -> {
-                    DetailRow(label = "Date of birth", value = "DD/MM/YY")
+            when (user) {
+                is Patient -> {
+                    DetailRow(label = "Date of birth", value = user.dateOfBirth ?: "Not logged in")
                     SmileDivider()
-                    DetailRow(label = "Gender", value = "Error text")
+                    DetailRow(label = "Gender", value = user.gender.toString()) // TODO: Write out full gender
                     SmileDivider()
-                    DetailRow(label = "NRIC", value = "000000-00-0000")
+                    DetailRow(label = "NRIC", value = user.nric)
                     SmileDivider()
-                    DetailRow(label = "Allergies", value = "Error text")
+                    DetailRow(label = "Allergies", value = if (user.allergies == "") "None" else user.allergies ?: "")
+                    SmileDivider()
+                    DetailRow(label = "Medical Notes", value = if (user.medicalNotes == "") "None" else user.medicalNotes ?: "")
                 }
 
-                UserRole.DENTIST -> {
-                    DetailRow(label = "Specialisation", value = "Error text")
+                is Dentist -> {
+                    DetailRow(label = "Specialisation", value = user.specialty)
+                    SmileDivider()
+                    DetailRow(label = "Dentist ID", value = user.dentistId)
                 }
 
-                else -> {
-                    DetailRow(label = "Employee ID", value = "Error text")
-                    SmileDivider()
-                    DetailRow(label = "Branch", value = "Error text")
+                is Nurse -> {
+                    DetailRow(label = "Nurse ID", value = user.nurseId)
                 }
+
+                null -> TODO()
             }
         }
 
-        if (role == UserRole.DENTIST) {
+        if (user is Dentist) {
             NoticeCard(
                 text = "Your details are read-only. Contact reception if anything needs updating.",
                 title = "Managed by reception",
             )
         }
 
-        when (role) {
-            UserRole.PATIENT -> {
+        when (user) {
+            is Patient -> {
                 PrimaryButton(
                     text = "Edit profile",
                     onClick = onEditProfileClick,
@@ -125,14 +131,14 @@ fun ProfileScreen(
                 )
             }
 
-            UserRole.DENTIST -> {
+            is Dentist -> {
                 OutlineButton(
                     text = "Change password",
                     onClick = onChangePasswordClick,
                 )
             }
 
-            else -> {
+            is Nurse -> {
                 PrimaryButton(
                     text = "Edit profile",
                     onClick = onEditProfileClick,
@@ -142,6 +148,8 @@ fun ProfileScreen(
                     onClick = onChangePasswordClick,
                 )
             }
+
+            null -> TODO()
         }
 
         LogoutAction(onClick = onLogoutClick)
@@ -178,3 +186,11 @@ fun ProfileScreen(
         }
     }
 }
+
+private fun initials(name: String): String = name
+    .trim()
+    .split(Regex("\\s+"))
+    .filter { it.isNotBlank() }
+    .take(2)
+    .joinToString("") { it.first().uppercase() }
+    .ifEmpty { "?" }

@@ -323,11 +323,12 @@ fun StatusPill(text: String, tone: StatusTone = StatusTone.INFO) {
 }
 
 @Composable
-fun RoleBadge(role: UserRole) {
+fun RoleBadge(role: UserRole?) {
     val label = when (role) {
         UserRole.PATIENT -> "Patient"
         UserRole.DENTIST -> "Dentist"
         UserRole.NURSE -> "Nurse"
+        null -> TODO()
     }
     StatusPill(text = label, tone = StatusTone.INFO)
 }

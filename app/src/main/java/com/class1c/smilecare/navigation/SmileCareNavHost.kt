@@ -47,6 +47,7 @@ import com.class1c.smilecare.features.user.presentation.UsersScreen
 import com.class1c.smilecare.features.profile.presentation.DeleteAccountScreen
 import com.class1c.smilecare.features.profile.presentation.EditProfileScreen
 import com.class1c.smilecare.features.profile.presentation.ProfileScreen
+import com.class1c.smilecare.features.profile.presentation.ProfileViewModel
 import com.class1c.smilecare.features.schedule.presentation.ScheduleScreen
 import com.class1c.smilecare.features.services.presentation.DeleteServiceScreen
 import com.class1c.smilecare.features.services.servicedetail.presentation.ServiceDetailScreen
@@ -55,9 +56,10 @@ import com.class1c.smilecare.features.servicesscreen.presentation.ServicesScreen
 import com.class1c.smilecare.features.services.servicesformscreen.presentation.ServiceFormViewModel
 import com.class1c.smilecare.features.servicesscreen.presentation.ServicesScreenViewModel
 import com.class1c.smilecare.features.staff.presentation.DeleteStaffAccountScreen
-import com.class1c.smilecare.features.staff.presentation.StaffAccountDetailScreen
+import com.class1c.smilecare.features.staff.presentation.UserAccountDetailsScreen
 import com.class1c.smilecare.features.staff.accountformscreen.presentation.StaffAccountFormScreen
 import com.class1c.smilecare.features.staff.accountformscreen.presentation.StaffAccountFormViewModel
+import com.class1c.smilecare.features.staff.presentation.UserAccountDetailsViewModel
 import com.class1c.smilecare.features.user.presentation.UsersViewModel
 
 /**
@@ -433,7 +435,7 @@ fun SmileCareNavHost(
                 state = state,
                 event = viewModel::onEvent,
                 onPatientClick = { userId ->
-                    navController.navigate(Route.StaffAccountDetail.create(userId))
+                    navController.navigate(Route.UserAccountDetails.create(userId))
                 },
                 onAddStaffClick = {
                     navController.navigate(Route.StaffAccountForm.create("new"))
@@ -442,20 +444,20 @@ fun SmileCareNavHost(
             )
         }
 
-        composable(Route.StaffAccountDetail.path) { backStackEntry ->
-            val staffId = backStackEntry.arguments
-                ?.getString(Route.StaffAccountDetail.ID_ARG)
-                ?: "staff-1"
-            StaffAccountDetailScreen(
-                staffId = staffId,
+        composable(Route.UserAccountDetails.path) {
+            val viewModel: UserAccountDetailsViewModel = hiltViewModel()
+            val state by viewModel.uiState.collectAsStateWithLifecycle()
+
+            UserAccountDetailsScreen(
+                state = state,
                 onBackClick = {
                     navController.popBackStack()
                 },
                 onEditClick = {
-                    navController.navigate(Route.StaffAccountForm.create(staffId))
+                    navController.navigate(Route.StaffAccountForm.create(state.userId))
                 },
                 onDeleteClick = {
-                    navController.navigate(Route.DeleteStaffAccount.create(staffId))
+                    navController.navigate(Route.DeleteStaffAccount.create(state.userId))
                 },
             )
         }
@@ -651,8 +653,10 @@ fun SmileCareNavHost(
         }
 
         composable(Route.Profile.path) {
+            val viewModel: ProfileViewModel = hiltViewModel()
+            val state by viewModel.uiState.collectAsStateWithLifecycle()
             ProfileScreen(
-                role = role,
+                state = state,
                 onEditProfileClick = {
                     navController.navigate(Route.EditProfile.path)
                 },

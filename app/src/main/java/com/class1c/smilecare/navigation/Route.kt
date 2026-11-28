@@ -122,11 +122,11 @@ sealed interface Route {
         override val path: String = "staff-accounts"
     }
 
-    data object StaffAccountDetail : Route {
-        const val ID_ARG: String = "staffId"
-        override val path: String = "staff-account-detail/{$ID_ARG}"
+    data object UserAccountDetails : Route {
+        const val ID_ARG: String = "userId"
+        override val path: String = "user-account-details/{$ID_ARG}"
 
-        fun create(staffId: String): String = "staff-account-detail/$staffId"
+        fun create(userId: String): String = "user-account-details/$userId"
     }
 
     data object StaffAccountForm : Route {

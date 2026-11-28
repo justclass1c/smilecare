@@ -238,6 +238,88 @@ class UserRepositoryImpl @Inject constructor(
 
     override suspend fun deleteUser(user: User) {
     }
+
+    override suspend fun getUserById(userId: String): User? {
+        val target = supabase.from("users").select(
+            columns = Columns.list("user_id", "name", "email", "password", "nric", "phone_no", "date_of_birth", "gender", "role")
+        ) {
+            filter {
+                eq("user_id", userId)
+            }
+        }.decodeSingleOrNull<UserRow>()
+
+        when(target?.role) {
+            "patient" -> {
+                val patient = supabase.from("patients").select(
+                    columns = Columns.list("user_id", "has_insurance", "allergies", "medical_notes")
+                ) {
+                    filter {
+                        eq ("user_id", target.userId)
+                    }
+                }.decodeSingleOrNull<PatientRow>() ?: return null
+
+                return Patient(
+                    id = target.userId,
+                    name = target.name,
+                    email = target.email,
+                    password = target.password,
+                    nric = target.nric,
+                    phoneNo = target.phoneNo,
+                    dateOfBirth = target.dateOfBirth,
+                    gender = target.gender.first().uppercaseChar(),
+                    hasInsurance = patient.hasInsurance,
+                    allergies = patient.allergies,
+                    medicalNotes = patient.medicalNotes
+                )
+            }
+
+            "dentist" -> {
+                val dentist = supabase.from("dentists").select(
+                    columns = Columns.list("user_id", "dentist_id", "specialty")
+                ) {
+                    filter {
+                        eq ("user_id", target.userId)
+                    }
+                }.decodeSingleOrNull<DentistRow>() ?: return null
+
+                return Dentist(
+                    id = target.userId,
+                    name = target.name,
+                    email = target.email,
+                    password = target.password,
+                    nric = target.nric,
+                    phoneNo = target.phoneNo,
+                    dateOfBirth = target.dateOfBirth,
+                    gender = target.gender.first().uppercaseChar(),
+                    dentistId = dentist.dentistID,
+                    specialty = dentist.specialty
+                )
+            }
+
+            "nurse" -> {
+                val nurse = supabase.from("nurses").select(
+                    columns = Columns.list("user_id", "nurse_id")
+                ) {
+                    filter { eq("user_id", target.userId) }
+                }.decodeSingleOrNull<NurseRow>() ?: return null
+
+                return Nurse(
+                    id = target.userId,
+                    name = target.name,
+                    email = target.email,
+                    password = target.password,
+                    nric = target.nric,
+                    phoneNo = target.phoneNo,
+                    dateOfBirth = target.dateOfBirth,
+                    gender = target.gender.first().uppercaseChar(),
+                    nurseId = nurse.nurseID
+                )
+            }
+        }
+
+        return null
+    }
+
     private suspend fun generateStaffId(prefix: Char): String {
         val lastId: String? = when (prefix) {
             'D' -> supabase.from("dentists").select(Columns.list("dentist_id")) {

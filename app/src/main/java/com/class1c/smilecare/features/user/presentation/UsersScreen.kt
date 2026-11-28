@@ -88,7 +88,8 @@ fun UsersScreen(
         SmileTextField(
             label = if (nurses) "Search accounts" else "Search name or NRIC",
             value = state.searchQuery,
-            placeholder = "Search",
+            onValueChange = { event(UsersEvent.UpdateSearchQuery(it)) },
+            placeholder = "",
         )
         Row(
             modifier = Modifier.fillMaxWidth(),

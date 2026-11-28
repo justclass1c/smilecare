@@ -8,4 +8,5 @@ interface UserRepository {
     suspend fun listUsers(category: Int): List<User>
     suspend fun updateUser(user: User)
     suspend fun deleteUser(user: User)
+    suspend fun getUserById(userId: String): User?
 }
